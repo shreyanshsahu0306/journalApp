@@ -1,7 +1,8 @@
 package com.example.journalApp.Service;
 
 import com.example.journalApp.Model.Journal;
-import com.example.journalApp.Repo.JournalRepo;
+import com.example.journalApp.Model.User;
+import com.example.journalApp.Repo.UserRepo;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,34 +12,37 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class JournalService {
+public class UserService {
 
     @Autowired
-    private JournalRepo journalRepo;
+    private UserRepo userRepo;
 
-    public List<Journal> getAllEntries(){
-        return journalRepo.findAll();
+    public List<User> getAllEntries(){
+        return userRepo.findAll();
     }
 
-    public Optional<Journal> getEntryById(ObjectId id) {
-        return journalRepo.findById(id);
+    public Optional<User> getEntryById(ObjectId id) {
+        return userRepo.findById(id);
     }
 
     public void deleteById(ObjectId  id){
-        journalRepo.deleteById(id);
+        userRepo.deleteById(id);
     }
 
-    public void createEntry(Journal journalEntry){
-        journalEntry.setDate(LocalDateTime.now());
-        journalRepo.save(journalEntry);
+    public void createEntry(User user){
+        user.setDate(LocalDateTime.now());
+        userRepo.save(user);
     }
 
-    public Journal updateEntry(Journal newEntry, ObjectId  id){
+    public User findUserByUserName(String userName){
+        return userRepo.findUserByUserName(userName);
+    }
+    /*public Journal updateEntry(Journal newEntry, ObjectId  id){
         Journal journal =journalRepo.findById(id).orElse(null);
         journal.setTitle(newEntry.getTitle()!=null && !newEntry.getTitle().equals("") ? newEntry.getTitle(): journal.getTitle());
         journal.setDescription(newEntry.getDescription()!=null && !newEntry.getDescription().equals("") ? newEntry.getDescription(): journal.getDescription());
         journalRepo.save(journal);
         return journal;
 
-    }
+    }*/
 }
