@@ -1,7 +1,9 @@
 package com.example.journalApp.Controller;
 
 import com.example.journalApp.Model.Journal;
+import com.example.journalApp.Model.User;
 import com.example.journalApp.Service.JournalService;
+import com.example.journalApp.Service.UserService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,30 +20,38 @@ public class JournalController {
     @Autowired
     private JournalService journalService;
 
+    @Autowired
+    private UserService userService;
+
+    //get all journal entries: /journal/get
     @GetMapping("/get")
     public ResponseEntity<List<Journal>> getEntries(){
         return new ResponseEntity<>(journalService.getAllEntries(), HttpStatus.OK);
     }
 
-    @GetMapping("/get/{id}")
-    public ResponseEntity<Journal> getEntry(@PathVariable ObjectId  id){
-        Optional<Journal> journalEntry =  journalService.getEntryById(id);
-        if(journalEntry.isPresent()){
-            return new ResponseEntity<>(journalEntry.get(), HttpStatus.OK);
+    //get all Journal entries for a user: /journal/get/userName
+    @GetMapping("/get/{userName}")
+    public ResponseEntity<?> getAllJournalEntriesOfUser(@PathVariable String  userName){
+        User user = userService.findUserByUserName(userName);
+        List<Journal> allEntries =  user.getJournalEntries();
+        if(allEntries!=null){
+            return new ResponseEntity<>(allEntries, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Journal> deleteEntry(@PathVariable ObjectId  id){
-        journalService.deleteById(id);
+    //delete Journal entry for a user: /journal/delete/userName/id
+    @DeleteMapping("/delete/{userName}/{id}")
+    public ResponseEntity<Journal> deleteEntry(@PathVariable ObjectId  id, @PathVariable String userName){
+        journalService.deleteEntry(id, userName);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<Journal> createEntry(@RequestBody Journal myEntry){
+    //create Journal entries for a user: /journal/create/userName
+    @PostMapping("/create/{userName}")
+    public ResponseEntity<Journal> createEntry(@RequestBody Journal myEntry, @PathVariable String userName){
         try{
-            journalService.createEntry(myEntry);
+            journalService.createEntry(myEntry, userName);
             return new ResponseEntity<>(myEntry, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
