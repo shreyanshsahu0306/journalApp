@@ -42,14 +42,16 @@ public class JournalController {
 
     //delete Journal entry for a user: /journal/delete/userName/id
     @DeleteMapping("/delete/{userName}/{id}")
-    public ResponseEntity<Journal> deleteEntry(@PathVariable ObjectId  id, @PathVariable String userName){
+    public ResponseEntity<Journal> deleteEntry(@PathVariable ObjectId  id,
+                                               @PathVariable String userName){
         journalService.deleteEntry(id, userName);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     //create Journal entries for a user: /journal/create/userName
     @PostMapping("/create/{userName}")
-    public ResponseEntity<Journal> createEntry(@RequestBody Journal myEntry, @PathVariable String userName){
+    public ResponseEntity<Journal> createEntry(@RequestBody Journal myEntry,
+                                               @PathVariable String userName){
         try{
             journalService.createEntry(myEntry, userName);
             return new ResponseEntity<>(myEntry, HttpStatus.CREATED);
@@ -58,8 +60,11 @@ public class JournalController {
         }
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<Journal> updateEntry(@RequestBody Journal myEntry, @PathVariable ObjectId  id){
+    //updating journal entry for a user: /journal/update/userName/id
+    @PutMapping("/update/{userName}/{id}")
+    public ResponseEntity<Journal> updateEntry(@RequestBody Journal myEntry,
+                                               @PathVariable ObjectId  id,
+                                               @PathVariable String userName){
         Journal old = journalService.getEntryById(id).orElse(null);
         if(old!=null){
            Journal updated = journalService.updateEntry(myEntry, id);
