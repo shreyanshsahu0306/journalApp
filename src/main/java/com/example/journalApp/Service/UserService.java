@@ -53,6 +53,13 @@ public class UserService {
     public void deleteUserByUserName(String userName){
         userRepo.deleteUserByUserName(userName);
     }
+
+    public void saveAdmin(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setDate(LocalDateTime.now());
+        user.setRoles(Arrays.asList("USER", "ADMIN"));
+        userRepo.save(user);
+    }
     /*public Journal updateEntry(Journal newEntry, ObjectId  id){
         Journal journal =journalRepo.findById(id).orElse(null);
         journal.setTitle(newEntry.getTitle()!=null && !newEntry.getTitle().equals("") ? newEntry.getTitle(): journal.getTitle());
