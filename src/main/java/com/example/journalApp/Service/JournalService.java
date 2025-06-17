@@ -6,6 +6,7 @@ import com.example.journalApp.Repo.JournalRepo;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,27 +29,45 @@ public class JournalService {
         return journalRepo.findById(id);
     }
 
-    public void deleteEntry(ObjectId  id, String userName){
-        User user = userService.findUserByUserName(userName);
-        user.getJournalEntries().removeIf(x -> x.getId().equals(id));
-        userService.createEntry(user);
-        journalRepo.deleteById(id);
+    @Transactional
+    public boolean deleteEntry(ObjectId  myid, String userName){
+        boolean removed = false;
+        try{
+            User user = userService.findUserByUserName(userName);
+            removed = user.getJournalEntries().removeIf(x -> x.getId().equals(myid));
+            if(removed){
+                userService.saveEntry(user);
+                journalRepo.deleteById(myid);
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+            throw new RuntimeException("An error occurred while deleting the entry: ",e);
+        }
+        return removed;
     }
 
+    @Transactional
     public void createEntry(Journal journalEntry, String userName){
-        User user = userService.findUserByUserName(userName);
-        journalEntry.setDate(LocalDateTime.now());
-        Journal saved = journalRepo.save(journalEntry);
-        user.getJournalEntries().add(saved);
-        userService.createEntry(user);
+        try{
+            User user = userService.findUserByUserName(userName);
+            journalEntry.setDate(LocalDateTime.now());
+            Journal saved = journalRepo.save(journalEntry);
+            user.getJournalEntries().add(saved);
+            userService.saveEntry(user);
+        }catch(Exception e){
+            System.out.println(e);
+            throw new RuntimeException("An error has occured while saving the entry.",e);
+        }
+
     }
 
-    public Journal updateEntry(Journal newEntry, ObjectId  id){
-        Journal journal =journalRepo.findById(id).orElse(null);
-        journal.setTitle(newEntry.getTitle()!=null && !newEntry.getTitle().equals("") ? newEntry.getTitle(): journal.getTitle());
-        journal.setDescription(newEntry.getDescription()!=null && !newEntry.getDescription().equals("") ? newEntry.getDescription(): journal.getDescription());
-        journalRepo.save(journal);
-        return journal;
+    public Journal updateEntry(Journal journal, ObjectId  myId){
+        Journal old =journalRepo.findById(myId).orElse(null);
+        old.setTitle(journal.getTitle()!=null && !journal.getTitle().equals("") ? journal.getTitle(): old.getTitle());
+        old.setDescription(journal.getDescription()!=null && !journal.getDescription().equals("") ? journal.getDescription(): old.getDescription());
+        journalRepo.save(old);
+        return old;
 
     }
 }
+
