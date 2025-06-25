@@ -5,3 +5,7 @@ spring:
       port: 27017
       database: journal
       auto-index-creation: true
+
+weather:
+  api:
+    key: cde443e93cd45ef36c9cc8fb3fdcb833
