@@ -1,5 +1,6 @@
 package com.example.journalApp.Model;
 
+import com.example.journalApp.Enums.Sentiment;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,5 +26,7 @@ public class Journal {
     private String description;
 
     private LocalDateTime date;
+
+    private Sentiment sentiment;
 
 }
